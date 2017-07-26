@@ -51,61 +51,6 @@ fn impl_serialize_identifiable(ast: &DeriveInput) -> quote::Tokens {
     }
 }
 
-/*fn impl_ext_def_item_initialization(
-    attrs: &[Attribute],
-    body: &Body,
-) -> (quote::Tokens, quote::Tokens) {
-    match ast.body {
-        Body::Struct(ref data) => {
-            let mut ext_lifetimes = None;
-            let mut ext_fields_types = vec![quote! { id: u32 }];
-            let mut ext_fields_values = vec![quote! { id: }];
-
-            match *data {
-                VariantData::Struct(ref fields) => {
-                    for field in fields {
-                        if field.ident.is_none() {
-                            unreachable!();
-                        }
-
-                        let name = field.ident;
-                        let ty = field.ty;
-
-                        ext_fields_types.push(quote! { #name: #ty });
-                    }
-                },
-                VariantData::Tuple(_)           => unreachable!(),
-                VariantData::Unit               => { /* Do nothing */ },
-            }
-
-            let ext_fields_types = ext_fields_types_values
-                .iter()
-                .map(|(name, (ty, value))| quote! { #name: #ty })
-                .collect::<Vec<_>>();
-            let ext_fields_values = ext_fields_types_values
-                .iter()
-                .map(|(name, (ty, value))| quote! { #name: #value })
-                .collect::<Vec<_>>();
-
-            let ext_def_item = quote! {
-                struct Extended#ext_lifetimes {
-                    #(#ext_fields_types),*
-                }
-            };
-
-            let ext_init_item = quote! {
-                Extended {
-                    #(#ext_fields_values),*
-                }
-            };
-        },
-
-        Body::Enum(ref variants) => {
-            
-        },
-    }
-}*/
-
 fn impl_ext_item(ast: &DeriveInput) -> (DeriveInput, quote::Tokens) {
     match ast.body {
         Body::Struct(ref data) => {
@@ -113,7 +58,7 @@ fn impl_ext_item(ast: &DeriveInput) -> (DeriveInput, quote::Tokens) {
                 impl_ext_attrs_data(BodyType::Struct, &ast.attrs, data);
 
             let ext_def_item = DeriveInput {
-                ident: ast.ident.clone(),
+                ident: Ident::from("Extended"),
                 vis: Visibility::Inherited,
                 attrs: ext_attrs,
                 generics: ast.generics.clone(),
@@ -146,7 +91,8 @@ fn impl_ext_item(ast: &DeriveInput) -> (DeriveInput, quote::Tokens) {
                 let variant_name = &variant.ident;
                 let ext_fields_names = ext_def_data.fields()
                     .iter()
-                    .map(|field| field.ident.clone())
+                    .map(|field| field.ident.clone().unwrap())
+                    .filter(|field_name| field_name != "_id")
                     .collect::<Vec<_>>();
                 let ext_def_variant = Variant {
                     ident: variant_name.clone(),
@@ -163,9 +109,13 @@ fn impl_ext_item(ast: &DeriveInput) -> (DeriveInput, quote::Tokens) {
                 });
             }
 
-            let mut ext_def_item = ast.clone();
-            ext_def_item.vis = Visibility::Inherited;
-            ext_def_item.body = Body::Enum(ext_def_variants);
+            let ext_def_item = DeriveInput {
+                ident: Ident::from("Extended"),
+                vis: Visibility::Inherited,
+                attrs: ast.attrs.clone(),
+                generics: ast.generics.clone(),
+                body: Body::Enum(ext_def_variants),
+            };
 
             let ext_init_item = quote! {
                 match *self {
