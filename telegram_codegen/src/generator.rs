@@ -219,7 +219,7 @@ pub fn generate<P: AsRef<Path>>(filename: P, schema: &Schema) -> error::Result<(
         }
 
         for (name, type_) in &module.types {
-            writeln!(f, "#[derive(Debug, Serialize)]")?;
+            writeln!(f, "#[derive(Debug, SerializeIdentifiable)]")?;
 
             // Open type
             if type_.constructors.len() == 1 {
