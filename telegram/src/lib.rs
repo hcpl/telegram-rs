@@ -15,6 +15,7 @@ mod client;
 mod request;
 
 pub use client::Client;
+pub use error::{Error, Result};
 pub use request::Request;
 
 #[allow(non_camel_case_types)]

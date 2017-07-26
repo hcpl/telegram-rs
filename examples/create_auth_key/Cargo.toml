@@ -7,6 +7,3 @@ workspace = "../../"
 extprim = "1.4.0"
 extprim_literals = "2.0.3"
 telegram = { path = "../../telegram" }
-hyper = "0.11"
-futures = "0.1"
-tokio-core = "0.1"

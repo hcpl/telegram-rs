@@ -1,16 +1,14 @@
 extern crate extprim;
 #[macro_use]
 extern crate extprim_literals;
-extern crate hyper;
 extern crate telegram;
-extern crate futures;
-extern crate tokio_core;
-
-use futures::Future;
-use tokio_core::reactor::Core;
 
 
 fn main() {
+    impl_main().unwrap()
+}
+
+fn impl_main() -> telegram::Result<()> {
     // Request for (p,q) Authorization
     // https://core.telegram.org/mtproto/samples-auth_key
 
@@ -35,16 +33,14 @@ fn main() {
     // [DEBUG] Step
     println!(" - Send {}\n", "http://149.154.167.50:443/api");
 
-    let mut core = Core::new().unwrap();
-    let client = telegram::Client::new(&core.handle());
-    let promise = client.request(req).map(|data| {
+    let mut client = telegram::Client::new()?;
+
+    client.send(req, |data| {
         // [DEBUG] Step
         println!(" - Receive");
 
         pprint(&data);
-    });
-
-    core.run(promise).unwrap();
+    })
 }
 
 fn pprint(buffer: &[u8]) {

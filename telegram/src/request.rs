@@ -1,7 +1,9 @@
-use ser::Serialize;
-use hyper;
 use std::time::{SystemTime, UNIX_EPOCH};
+
+use hyper;
+
 use error;
+use ser::Serialize;
 
 #[derive(Debug)]
 pub struct Request<T: Serialize> {
