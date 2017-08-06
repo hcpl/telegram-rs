@@ -1,15 +1,18 @@
-use ser::Serialize;
-use hyper;
 use std::time::{SystemTime, UNIX_EPOCH};
+
+use hyper;
+use serde::Serialize;
+use serde_mtproto::{self, Identifiable};
+
 use error;
 
 #[derive(Debug)]
-pub struct Request<T: Serialize> {
+pub struct Request<T: Serialize + Identifiable> {
     message_id: u64,
     message_body: T,
 }
 
-impl<T: Serialize> Request<T> {
+impl<T: Serialize + Identifiable> Request<T> {
     /// Create a new Telegram client.
     #[inline]
     pub fn new(body: T) -> Self {
@@ -56,17 +59,16 @@ impl<T: Serialize> Request<T> {
 
         // TODO: Handle the auth_key_id in the request
         // auth_key_id
-        0u64.serialize_to(&mut result)?;
+        serde_mtproto::to_writer(&mut result, &0u64)?;
 
         // message_id
-        self.message_id.serialize_to(&mut result)?;
+        serde_mtproto::to_writer(&mut result, &self.message_id)?;
 
         // Prepare inner message to compute message_length
-        let mut message = Vec::new();
-        self.message_body.serialize_to(&mut message)?;
+        let message = serde_mtproto::to_bytes_identifiable(&self.message_body)?;
 
         // message_length
-        (message.len() as u32).serialize_to(&mut result)?;
+        serde_mtproto::to_writer(&mut result, &(message.len() as u32))?;
 
         // Push the message onto the buffer following the message_length
         result.extend(message);

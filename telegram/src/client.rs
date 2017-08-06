@@ -1,10 +1,12 @@
-use tokio::reactor::Handle;
 use futures::{future, Stream, Future};
-use ser::Serialize;
 use hyper::{self, Body};
 use hyper::client::HttpConnector;
-use request::Request;
+use serde::Serialize;
+use serde_mtproto::Identifiable;
+use tokio::reactor::Handle;
+
 use error;
+use request::Request;
 
 pub struct Client {
     http_client: hyper::Client<HttpConnector, Body>,
@@ -20,7 +22,7 @@ impl Client {
     }
 
     // Send a constructed request using this Client.
-    pub fn request<T: Serialize>(
+    pub fn request<T: Serialize + Identifiable>(
         &self,
         req: Request<T>,
     ) -> Box<Future<Item = Vec<u8>, Error = error::Error>> {

@@ -1,15 +1,17 @@
 extern crate byteorder;
-extern crate tokio_core as tokio;
 extern crate futures;
 extern crate hyper;
 #[macro_use]
 extern crate error_chain;
 extern crate extprim;
+extern crate serde;
 #[macro_use]
-extern crate telegram_derive;
+extern crate serde_derive;
+extern crate serde_mtproto;
+#[macro_use]
+extern crate serde_mtproto_derive;
+extern crate tokio_core as tokio;
 
-pub mod ser;
-// pub mod de;
 pub mod error;
 mod client;
 mod request;

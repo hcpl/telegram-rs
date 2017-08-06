@@ -28,7 +28,7 @@ fn translate_typename(
     predicates: &HashMap<String, String>,
 ) -> String {
     if typename == "!X" {
-        "Box<::std::any::Any>".into()
+        "T".into()
     } else if typename.contains('%') {
         // FIXME: Implement bare types properly!
         translate_typename(&typename.replace('%', ""), current_module, predicates)
@@ -219,7 +219,12 @@ pub fn generate<P: AsRef<Path>>(filename: P, schema: &Schema) -> error::Result<(
         }
 
         for (name, type_) in &module.types {
-            writeln!(f, "#[derive(Debug, Serialize)]")?;
+            writeln!(f, "#[derive(Debug, Serialize, Deserialize, MtProtoIdentifiable)]")?;
+
+            let has_type_parameter = &type_.constructors.iter()
+                .map(|c| c.params.iter().map(|p| p.kind == "!X").any(|has| has))
+                .any(|has| has);
+            let type_parameter = if *has_type_parameter { "<T>" } else { "" };
 
             // Open type
             if type_.constructors.len() == 1 {
@@ -228,13 +233,13 @@ pub fn generate<P: AsRef<Path>>(filename: P, schema: &Schema) -> error::Result<(
 
                 if type_.constructors[0].params.is_empty() {
                     // A single constructor with no parameters is a unit
-                    writeln!(f, "pub struct {};", name)?;
+                    writeln!(f, "pub struct {}{};", name, type_parameter)?;
                     continue;
                 } else {
-                    writeln!(f, "pub struct {} {{", name)?;
+                    writeln!(f, "pub struct {}{} {{", name, type_parameter)?;
                 }
             } else {
-                writeln!(f, "pub enum {} {{", name)?;
+                writeln!(f, "pub enum {}{} {{", name, type_parameter)?;
             }
 
             for constructor in &type_.constructors {
