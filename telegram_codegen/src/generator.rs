@@ -36,7 +36,7 @@ fn translate_typename(
         let s = typename.split(|c| c == '<' || c == '>').collect::<Vec<_>>();
         let typename = translate_typename(s[1], current_module, predicates);
 
-        format!("Vec<{}>", typename)
+        format!("::serde_mtproto::Boxed<Vec<{}>>", typename)
     } else if typename.contains('.') {
         let s = typename.splitn(2, '.').collect::<Vec<_>>();
 
@@ -65,7 +65,7 @@ fn translate_typename(
             "Vec<long>" => "Vec<i64>".to_string(),
             "long" => "i64".to_string(),
             "double" => "f64".to_string(),
-            "bytes" => "Vec<u8>".to_string(),
+            "bytes" => "::serde_mtproto::ByteBuf".to_string(),
 
             _ => {
                 if current_module.is_some() {

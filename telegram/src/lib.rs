@@ -14,10 +14,13 @@ extern crate tokio_core as tokio;
 
 pub mod error;
 mod client;
+mod message;
 mod request;
+mod response;
 
 pub use client::Client;
 pub use request::Request;
+pub use response::Response;
 
 #[allow(non_camel_case_types)]
 pub mod schema {
