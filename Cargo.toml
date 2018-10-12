@@ -1,8 +1,22 @@
-[workspace]
-members = [
-  "telegram",
-  "telegram_codegen",
-  "telegram_derive",
+[package]
+name = "telegram"
+version = "0.2.0"
+description = "Unofficial Telegram API Library"
+authors = ["Ryan Leckey <leckey.ryan@gmail.com>"]
+license = "MIT OR Apache-2.0"
+homepage = "https://github.com/mehcode/telegram-rs"
+documentation = "https://docs.rs/telegram"
+repository = "https://github.com/mehcode/telegram-rs"
 
-  "examples/create_auth_key",
-]
+[dependencies]
+envy = "0.3"
+error-chain = "0.12"
+futures = "0.1"
+itertools = "0.7"
+lazy_static = "1.1"
+log = "0.4"
+mtproto = { git = "https://github.com/hcpl/mtproto-rs", branch = "next", rev = "8502f6e" }
+os_type = "2.2"
+serde = "1.0"
+serde_derive = "1.0"
+toml = "0.4"
